@@ -15,13 +15,18 @@ ENV \
 
 RUN \
   apt-get update && \
-  apt-get install -y --no-install-recommends tini build-essential gfortran libatlas-base-dev && \
+  apt-get install -y --no-install-recommends tini build-essential gfortran libatlas-base-dev wget && \
   pip install "poetry==1.1.13"
 
 COPY pyproject.toml poetry.lock ./
 RUN \
   python -m poetry install --no-dev && \
   rm -rf /root/.cache/pypoetry/artifacts /root/.cache/pypoetry/cache
+
+RUN \
+  mkdir models && \
+  wget https://github.com/danbooru/autotagger/releases/download/2022.06.20-233624-utc/model.pth -O models/model.pth
+
 COPY . .
 
 EXPOSE 5000
