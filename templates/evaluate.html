@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="text-sm m-4 break-all lg:max-w-[960px] lg:mx-auto" style="font-family: system-ui;">
+    <h1 class="text-3xl">Results</h1>
+    <a class="text-xs text-sky-600 hover:text-sky-500 mr-4" href="/">&lt; Back</a>
+
+    <div class="mt-4">
+      {% for prediction in predictions %}
+        <div class="flex flex-col p-2 gap-2 border rounded md:flex-row md:max-h-[80vh]">
+          <div class="flex-1 flex items-center justify-center">
+            <img class="max-w-full max-h-full h-auto" src="data:image/jpg;base64,{{ prediction["data"] | safe }}">
+          </div>
+
+          <div class="flex-0 overflow-scroll md:pr-2">
+            <table class="w-full leading-4">
+              {% for tag, score in prediction["tags"].items() %}
+              <tr>
+                <td>
+                  <a class="text-sky-600 hover:text-sky-500" href="https://danbooru.donmai.us/wiki_pages/{{ tag | urlencode }}">?</a>
+                  <a class="text-sky-600 hover:text-sky-500 mr-4" href="https://danbooru.donmai.us/posts?tags={{ tag | urlencode }}">{{ tag | replace("_", " ") }}</a>
+                </td>
+                <td class="text-gray-400 text-right">{{ "{:.0f}%".format(100 * score) }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+
+            <textarea class="w-full text-gray-500 mt-2" rows="4">{{ " ".join(prediction["tags"].keys()) }}</textarea>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>

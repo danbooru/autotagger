@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+
+import json
+import click
+from autotagger import Autotagger
+from fastai.vision.core import PILImage
+
+@click.command(help="Automatically generate tags for an image.")
+@click.option("-t", "--threshold", default=0.01, type=float, show_default=True, help="The minimum tag confidence level.")
+@click.option("-n", "--limit", default=50, type=int, show_default=True, help="The maximum number of tags to return.")
+@click.option("-m", "--model", default="models/model.pth", type=click.Path(exists=True), help="The model to use.")
+@click.argument("file", nargs=-1, type=click.File("rb"), required=True)
+def main(file, threshold, limit, model):
+    autotagger = Autotagger(model)
+    predictions = [{ "filename": f.name, "tags": autotagger.predict(PILImage.create(f), threshold=threshold, limit=limit) } for f in file]
+    click.echo(json.dumps(predictions, indent=2))
+
+if __name__ == "__main__":
+    main()

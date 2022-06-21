@@ -1,0 +1,1 @@
+from .autotagger import Autotagger

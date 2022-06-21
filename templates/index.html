@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <form action="/evaluate" method="post" enctype="multipart/form-data">
+      <input type="file" name="file">
+      <input type="hidden" name="threshold" min="0" max="1" step="0.1" value="0.01">
+      <input type="hidden" name="limit" value="100">
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
