@@ -33,4 +33,4 @@ EXPOSE 5000
 ENTRYPOINT ["tini", "--", "poetry", "run"]
 #CMD ["autotag"]
 #CMD ["flask", "run", "--host", "0.0.0.0"]
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
+CMD ["gunicorn"]
