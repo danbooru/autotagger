@@ -23,11 +23,11 @@ def main(file, threshold, limit, bs, group_tags, model):
 
         for filepath, tags in zip(filepaths, predictions):
             if group_tags:
-                data = { "filename": filepath.name, "tags": tags }
+                data = { "filename": filepath, "tags": tags }
                 click.echo(json.dumps(data))
             else:
                 for tag, score in tags.items():
-                    data = { "filename": filepath.name, "tag": tag, "score": score }
+                    data = { "filename": filepath, "tag": tag, "score": score }
                     click.echo(json.dumps(data))
 
 def get_filepaths(paths):
