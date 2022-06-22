@@ -26,8 +26,9 @@ class Autotagger:
 
         return learn
 
-    def predict(self, images, threshold=0.01, limit=50, bs=64):
+    def predict(self, files, threshold=0.01, limit=50, bs=64):
         with self.learn.no_bar(), self.learn.no_logging():
+            images = [PILImage.create(file) for file in files]
             dl = self.learn.dls.test_dl(images, bs=bs)
             batch, _ = self.learn.get_preds(dl=dl)
 
