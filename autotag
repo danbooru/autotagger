@@ -12,8 +12,12 @@ from fastai.vision.core import PILImage
 @click.argument("file", nargs=-1, type=click.File("rb"), required=True)
 def main(file, threshold, limit, model):
     autotagger = Autotagger(model)
-    predictions = [{ "filename": f.name, "tags": autotagger.predict(PILImage.create(f), threshold=threshold, limit=limit) } for f in file]
-    click.echo(json.dumps(predictions, indent=2))
+    images = [PILImage.create(f) for f in file]
+    predictions = autotagger.predict(images, threshold=threshold, limit=limit)
+
+    for i, tags in enumerate(predictions):
+        data = { "filename": file[i].name, "tags": tags }
+        click.echo(json.dumps(data))
 
 if __name__ == "__main__":
     main()

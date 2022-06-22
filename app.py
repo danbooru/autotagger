@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from autotagger import Autotagger
 from base64 import b64encode
 from flask import Flask, request, render_template, jsonify
+from fastai.vision.core import PILImage
 
 load_dotenv()
 model_path = getenv("MODEL_PATH", "models/model.pth")
@@ -21,15 +22,21 @@ def index():
 @app.route("/evaluate", methods=["POST"])
 def evaluate():
     files = request.files.getlist("file")
+    images = [PILImage.create(file) for file in files]
     threshold = float(request.form.get("threshold", 0.1))
     output = request.form.get("format", "html")
     limit = int(request.form.get("limit", 50))
 
+    predictions = autotagger.predict(images, threshold=threshold, limit=limit)
+
     if output == "html":
-        predictions = [{ "data": b64encode(data).decode(), "tags": autotagger.predict(data, threshold=threshold, limit=limit) } for data in (file.stream.read() for file in files)]
-        return render_template("evaluate.html", predictions=predictions)
+        for file in files:
+            file.seek(0)
+
+        base64data = [b64encode(file.read()).decode() for file in files]
+        return render_template("evaluate.html", predictions=zip(base64data, predictions))
     elif output == "json":
-        predictions = [{ "filename": file.filename, "tags": autotagger.predict(file.read(), threshold=threshold, limit=limit) } for file in files]
+        predictions = [{ "filename": file.filename, "tags": tags } for file, tags in zip(files, predictions)]
         return jsonify(predictions)
     else:
         return 400
