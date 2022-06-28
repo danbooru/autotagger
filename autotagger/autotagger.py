@@ -1,6 +1,7 @@
 from fastbook import *
 from pandas import DataFrame, read_csv
 import timm
+import sys
 
 class Autotagger:
     def __init__(self, model_path="models/model.pth", data_path="test/tags.csv.gz", tags_path="data/tags.json"):
@@ -32,6 +33,7 @@ class Autotagger:
                 try:
                     return PILImage.create(file)
                 except:
+                    print("skipped file " + file.name, file=sys.stderr)
                     return None
             images = list(filter(lambda i: i != None, [create_image(file) for file in files]))
             dl = self.learn.dls.test_dl(images, bs=bs)
