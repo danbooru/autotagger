@@ -28,7 +28,12 @@ class Autotagger:
 
     def predict(self, files, threshold=0.01, limit=50, bs=64):
         with self.learn.no_bar(), self.learn.no_logging():
-            images = [PILImage.create(file) for file in files]
+            def create_image(file):
+                try:
+                    return PILImage.create(file)
+                except:
+                    return None
+            images = list(filter(lambda i: i != None, [create_image(file) for file in files]))
             dl = self.learn.dls.test_dl(images, bs=bs)
             batch, _ = self.learn.get_preds(dl=dl)
 
