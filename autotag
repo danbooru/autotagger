@@ -33,7 +33,7 @@ def main(files, threshold, limit, bs, csv, input_file, group_tags, name_only, mo
         files = [click.open_file(filepath, "rb") for filepath in filepaths]
         predictions = autotagger.predict(files, threshold=threshold, limit=limit, bs=bs)
 
-        for filepath, tags in zip(filepaths, predictions):
+        for filepath, tags in predictions:
             output_result(filepath, tags, csv, group_tags, name_only)
 
 def output_result(filepath, tags, csv, group_tags, name_only):
