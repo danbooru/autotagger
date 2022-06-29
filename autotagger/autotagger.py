@@ -28,14 +28,11 @@ class Autotagger:
         return learn
 
     def predict(self, files, threshold=0.01, limit=50, bs=64):
+        if not files:
+            return
+
         with self.learn.no_bar(), self.learn.no_logging():
-            def create_image(file):
-                try:
-                    return PILImage.create(file)
-                except:
-                    print("skipped file " + file.name, file=sys.stderr)
-                    return None
-            images = list(filter(lambda i: i != None, [create_image(file) for file in files]))
+            images = [PILImage.create(file) for file in files]
             dl = self.learn.dls.test_dl(images, bs=bs)
             batch, _ = self.learn.get_preds(dl=dl)
 
