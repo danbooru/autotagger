@@ -4,7 +4,8 @@ from os import getenv
 from dotenv import load_dotenv
 from autotagger import Autotagger
 from base64 import b64encode
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, abort
+from werkzeug.exceptions import HTTPException
 
 load_dotenv()
 model_path = getenv("MODEL_PATH", "models/model.pth")
@@ -21,9 +22,9 @@ def index():
 @app.route("/evaluate", methods=["POST"])
 def evaluate():
     files = request.files.getlist("file")
-    threshold = float(request.form.get("threshold", 0.1))
-    output = request.form.get("format", "html")
-    limit = int(request.form.get("limit", 50))
+    threshold = float(request.values.get("threshold", 0.1))
+    output = request.values.get("format", "html")
+    limit = int(request.values.get("limit", 50))
 
     predictions = autotagger.predict(files, threshold=threshold, limit=limit)
 
@@ -37,7 +38,23 @@ def evaluate():
         predictions = [{ "filename": file.filename, "tags": tags } for file, tags in zip(files, predictions)]
         return jsonify(predictions)
     else:
-        return 400
+        abort(400)
+
+@app.errorhandler(HTTPException)
+def handle_http_exception(exception):
+    output = request.values.get("format", "html")
+
+    if hasattr(exception, "original_exception"):
+        error = exception.original_exception.__class__.__name__
+        message = str(exception.original_exception)
+    else:
+        error = exception.__class__.__name__
+        message = str(exception)
+
+    if output == "html":
+        return render_template("error.html", error=error, message=message)
+    else:
+        return jsonify({ "error": error, "message": message }), exception.code
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
