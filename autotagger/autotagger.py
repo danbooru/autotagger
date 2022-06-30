@@ -1,5 +1,7 @@
 from fastbook import *
 from pandas import DataFrame, read_csv
+from fastai.imports import noop
+from fastai.callback.progress import ProgressCallback
 import timm
 import sys
 
@@ -24,6 +26,8 @@ class Autotagger:
         learn = vision_learner(dls, "resnet152", pretrained=False)
         model_file = open(model_path, "rb")
         learn.load(model_file, with_opt=False)
+        learn.remove_cb(ProgressCallback)
+        learn.logger = noop
 
         return learn
 
@@ -31,12 +35,11 @@ class Autotagger:
         if not files:
             return
 
-        with self.learn.no_bar(), self.learn.no_logging():
-            dl = self.learn.dls.test_dl(files, bs=bs)
-            batch, _ = self.learn.get_preds(dl=dl)
+        dl = self.learn.dls.test_dl(files, bs=bs)
+        batch, _ = self.learn.get_preds(dl=dl)
 
-            for scores in batch:
-                df = DataFrame({ "tag": self.learn.dls.vocab, "score": scores })
-                df = df[df.score >= threshold].sort_values("score", ascending=False).head(limit)
-                tags = dict(zip(df.tag, df.score))
-                yield tags
+        for scores in batch:
+            df = DataFrame({ "tag": self.learn.dls.vocab, "score": scores })
+            df = df[df.score >= threshold].sort_values("score", ascending=False).head(limit)
+            tags = dict(zip(df.tag, df.score))
+            yield tags
