@@ -15,11 +15,20 @@ Danbooru. Here are some examples of different tags:
 * https://danbooru.donmai.us/ai_tags?search[tag_name]=hatsune_miku&search[order]=score_desc
 * https://danbooru.donmai.us/ai_tags?search[tag_name]=cat&search[order]=score_desc
 
-See below for how to run your own instance.
-
 # Quickstart
 
-## Web
+```
+# Get tags for a single image
+cat image.jpg | docker run --rm -i ghcr.io/danbooru/autotagger autotag -
+
+# Run the web server. Open http://localhost:5000.
+docker run --rm -p 5000:5000 ghcr.io/danbooru/autotagger
+
+# Get tags from the web server.
+curl http://localhost:5000/evaluate -X POST -F file=@hatsune_miku.jpg -F format=json
+```
+
+# Web
 
 Start the app server:
 
@@ -34,7 +43,7 @@ python -m poetry run gunicorn
 Then open http://localhost:5000 to use the webapp. Here you can upload images and
 view the list of predicted tags.
 
-## API
+# API
 
 Start the app server as above, then do:
 
@@ -87,7 +96,7 @@ The output will look like this:
 ]
 ```
 
-## CLI
+# CLI
 
 Generate tags for a single image:
 
@@ -136,11 +145,13 @@ Generate a list of tags in CSV format, suitable for importing into your own Danb
 # Manual Installation
 
 ```
-git clone https://github.com/danbooru/autotagger.git
-
 # Install system dependencies
 apt-get update
 apt-get install git build-essential gfortran libatlas-base-dev libffi-dev libssl-dev libbz2-dev liblzma-dev
+
+# Get code
+git clone https://github.com/danbooru/autotagger.git
+cd autotagger
 
 # Install Python (skip this if Python 3.9.13 is already installed)
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.0
