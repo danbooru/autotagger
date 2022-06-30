@@ -5,6 +5,7 @@ import click
 import itertools
 import logging
 import PIL
+from fastai.vision.core import PILImage
 from autotagger import Autotagger
 from pathlib import Path
 from more_itertools import ichunked
@@ -31,10 +32,13 @@ def main(files, threshold, limit, bs, csv, input_file, group_tags, name_only, mo
         click.get_current_context().exit()
 
     for filepaths in ichunked(paths, bs):
-        files = list(filter(None, [open_image(filepath) for filepath in filepaths]))
-        predictions = autotagger.predict(files, threshold=threshold, limit=limit, bs=bs)
+        paths_with_images = list(filter(None, [open_image(filepath) for filepath in filepaths]))
+        filepaths = [x[0] for x in paths_with_images]
+        images = [x[1] for x in paths_with_images]
 
-        for file, tags in zip(files, predictions):
+        predictions = autotagger.predict(images, threshold=threshold, limit=limit, bs=bs)
+
+        for file, tags in zip(filepaths, predictions):
             output_result(Path(file.name), tags, csv, group_tags, name_only)
 
 def output_result(filepath, tags, csv, group_tags, name_only):
@@ -63,12 +67,8 @@ def recurse_dir(directory):
 
 def open_image(filepath):
     try:
-        # Load the image to check that it's a valid file. Open the file twice because PIL closes the underlying file.
-        file = click.open_file(filepath, "rb")
-        image = PIL.Image.open(file)
-        image.load()
-        image.close()
-        return click.open_file(filepath, "rb")
+        with click.open_file(filepath, "rb") as file:
+          return (filepath, PILImage.create(file))
     except PIL.UnidentifiedImageError as err:
         logging.warning(f"Skipped {filepath} (not an image)")
         return None

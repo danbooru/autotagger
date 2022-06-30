@@ -32,8 +32,7 @@ class Autotagger:
             return
 
         with self.learn.no_bar(), self.learn.no_logging():
-            images = [PILImage.create(file) for file in files]
-            dl = self.learn.dls.test_dl(images, bs=bs)
+            dl = self.learn.dls.test_dl(files, bs=bs)
             batch, _ = self.learn.get_preds(dl=dl)
 
             for scores in batch:

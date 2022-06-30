@@ -4,6 +4,7 @@ from os import getenv
 from dotenv import load_dotenv
 from autotagger import Autotagger
 from base64 import b64encode
+from fastai.vision.core import PILImage
 from flask import Flask, request, render_template, jsonify, abort
 from werkzeug.exceptions import HTTPException
 
@@ -26,7 +27,8 @@ def evaluate():
     output = request.values.get("format", "html")
     limit = int(request.values.get("limit", 50))
 
-    predictions = autotagger.predict(files, threshold=threshold, limit=limit)
+    images = [PILImage.create(file) for file in files]
+    predictions = autotagger.predict(images, threshold=threshold, limit=limit)
 
     if output == "html":
         for file in files:
