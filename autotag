@@ -68,7 +68,7 @@ def recurse_dir(directory):
 def open_image(filepath):
     try:
         with click.open_file(filepath, "rb") as file:
-          return (filepath, PILImage.create(file))
+            return (filepath, PILImage.create(file))
     except PIL.UnidentifiedImageError as err:
         logging.warning(f"Skipped {filepath} (not an image)")
         return None
