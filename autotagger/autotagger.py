@@ -7,6 +7,15 @@ import torch
 from PIL import Image
 import torchvision.transforms as transforms
 
+# https://github.com/fastai/fastai/blob/176accfd5ae929d73d183d596c7155d3a9401f2f/fastai/vision/core.py#L96
+# load image and copy to new PIL Image object
+# allows removal of fastai dep
+def read_image(file):
+    im = Image.open(file)
+    im.load()
+    im = im._new(im.im)
+    return im
+
 # take in a single string denoting file path, a single PIL Image instance,
 # or a list of either or a combination and handle them using a map-style dataset
 class InferenceDataset(torch.utils.data.Dataset):

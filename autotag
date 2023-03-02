@@ -5,8 +5,7 @@ import click
 import itertools
 import logging
 import PIL
-from fastai.vision.core import PILImage
-from autotagger import Autotagger
+from autotagger import Autotagger, read_image
 from pathlib import Path
 from more_itertools import ichunked
 
@@ -68,7 +67,7 @@ def recurse_dir(directory):
 def open_image(filepath):
     try:
         with click.open_file(filepath, "rb") as file:
-            return (filepath, PILImage.create(file))
+            return (filepath, read_image(file))
     except PIL.UnidentifiedImageError as err:
         logging.warning(f"Skipped {filepath} (not an image)")
         return None
