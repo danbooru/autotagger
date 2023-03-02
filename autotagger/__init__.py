@@ -1,1 +1,1 @@
-from .autotagger import Autotagger
+from .autotagger import Autotagger, read_image
